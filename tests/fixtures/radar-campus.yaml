@@ -1,0 +1,67 @@
+apiVersion: e2ectl/v1
+kind: SitePairing
+metadata:
+  name: campus-building-a
+  site: "Tech Campus — Building A"
+  project: "CAMPUS-2026-Q2"
+  integrator: "SecureTech Partners"
+  created: "2026-03-19"
+  notes: |
+    Radar-PTZ autotracking for parking and loading dock.
+    Two D2210 radars paired with Q6135-LE PTZ cameras.
+
+defaults:
+  credentials:
+    username: root
+    password: ${E2ECTL_DEFAULT_PASS}
+  timeout: 15
+
+devices:
+  # Radars
+  - name: parking-radar
+    ip: 10.2.1.10
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: dock-radar
+    ip: 10.2.1.11
+    type: radar
+    model: AXIS D2210-VE
+
+  # PTZ Cameras
+  - name: parking-ptz
+    ip: 10.2.1.20
+    type: camera
+    model: AXIS Q6135-LE
+
+  - name: dock-ptz
+    ip: 10.2.1.21
+    type: camera
+    model: AXIS Q6135-LE
+
+pairings:
+  - name: parking-autotrack
+    type: radar-ptz
+    primary: parking-radar
+    secondary: parking-ptz
+    config:
+      mountingHeight: 4.5
+      panOffset: 0
+      tracking: true
+    labels:
+      zone: parking
+      purpose: autotracking
+      priority: high
+
+  - name: dock-autotrack
+    type: radar-ptz
+    primary: dock-radar
+    secondary: dock-ptz
+    config:
+      mountingHeight: 3.0
+      panOffset: -15
+      tracking: true
+    labels:
+      zone: loading-dock
+      purpose: autotracking
+      priority: high

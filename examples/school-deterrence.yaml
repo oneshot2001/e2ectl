@@ -1,0 +1,75 @@
+# e2ectl manifest v1
+# School Perimeter Deterrence Package
+#
+# Camera + speaker + strobe siren pairings for school entrances.
+# Combines audio deterrence with visual alert (strobe).
+
+apiVersion: e2ectl/v1
+kind: SitePairing
+metadata:
+  name: lincoln-elementary
+  site: "Lincoln Elementary — Denver, CO"
+  project: "SCHOOL-2026-Q2-007"
+  integrator: "SafeSchools Integration"
+  contact: "ops@safeschools.example.com"
+  created: "2026-03-19"
+  notes: |
+    Perimeter deterrence for 2 main entrances.
+    Each entrance has camera + speaker + strobe siren.
+    Speaker pairing requires e2ectl v0.2+ (audio API).
+
+defaults:
+  credentials:
+    username: root
+    password: ${E2ECTL_DEFAULT_PASS}
+  timeout: 15
+
+devices:
+  - name: main-entrance-cam
+    ip: 10.3.1.10
+    type: camera
+    model: AXIS P3268-LVE
+
+  - name: side-entrance-cam
+    ip: 10.3.1.11
+    type: camera
+    model: AXIS P3265-LVE
+
+  - name: main-entrance-spk
+    ip: 10.3.1.50
+    type: speaker
+    model: AXIS C1310-E
+
+  - name: side-entrance-spk
+    ip: 10.3.1.51
+    type: speaker
+    model: AXIS C1410
+
+  - name: main-entrance-strobe
+    ip: 10.3.1.70
+    type: strobe
+    model: AXIS D4100-E
+
+  - name: side-entrance-strobe
+    ip: 10.3.1.71
+    type: strobe
+    model: AXIS D4100-E
+
+pairings:
+  - name: main-audio-deterrence
+    type: audio
+    subtype: speaker
+    primary: main-entrance-cam
+    secondary: main-entrance-spk
+    labels:
+      zone: main-entrance
+      purpose: deterrence
+
+  - name: side-audio-deterrence
+    type: audio
+    subtype: speaker
+    primary: side-entrance-cam
+    secondary: side-entrance-spk
+    labels:
+      zone: side-entrance
+      purpose: deterrence

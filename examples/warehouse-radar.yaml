@@ -1,0 +1,115 @@
+# e2ectl manifest v1
+# Warehouse Perimeter — Radar-PTZ Autotracking
+#
+# Large-footprint warehouse with 4 radar zones covering
+# the full perimeter. Each radar paired with a PTZ camera.
+
+apiVersion: e2ectl/v1
+kind: SitePairing
+metadata:
+  name: warehouse-west
+  site: "West Distribution Center — Phoenix, AZ"
+  project: "WDC-2026-Q2"
+  integrator: "PerimeterPro LLC"
+  contact: "deploy@perimeterpro.example.com"
+  created: "2026-03-19"
+  notes: |
+    Full-perimeter radar autotracking.
+    4 zones: north, south, east, west.
+    Radars at 5m height for max coverage, PTZ cameras co-located.
+
+defaults:
+  credentials:
+    username: root
+    password: ${E2ECTL_DEFAULT_PASS}
+  timeout: 20
+
+devices:
+  - name: north-radar
+    ip: 10.4.1.10
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: south-radar
+    ip: 10.4.1.11
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: east-radar
+    ip: 10.4.1.12
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: west-radar
+    ip: 10.4.1.13
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: north-ptz
+    ip: 10.4.1.20
+    type: camera
+    model: AXIS Q6135-LE
+
+  - name: south-ptz
+    ip: 10.4.1.21
+    type: camera
+    model: AXIS Q6135-LE
+
+  - name: east-ptz
+    ip: 10.4.1.22
+    type: camera
+    model: AXIS Q6135-LE
+
+  - name: west-ptz
+    ip: 10.4.1.23
+    type: camera
+    model: AXIS Q6135-LE
+
+pairings:
+  - name: north-autotrack
+    type: radar-ptz
+    primary: north-radar
+    secondary: north-ptz
+    config:
+      mountingHeight: 5.0
+      panOffset: 0
+      tracking: true
+    labels:
+      zone: north
+      purpose: perimeter
+
+  - name: south-autotrack
+    type: radar-ptz
+    primary: south-radar
+    secondary: south-ptz
+    config:
+      mountingHeight: 5.0
+      panOffset: 0
+      tracking: true
+    labels:
+      zone: south
+      purpose: perimeter
+
+  - name: east-autotrack
+    type: radar-ptz
+    primary: east-radar
+    secondary: east-ptz
+    config:
+      mountingHeight: 5.0
+      panOffset: 90
+      tracking: true
+    labels:
+      zone: east
+      purpose: perimeter
+
+  - name: west-autotrack
+    type: radar-ptz
+    primary: west-radar
+    secondary: west-ptz
+    config:
+      mountingHeight: 5.0
+      panOffset: -90
+      tracking: true
+    labels:
+      zone: west
+      purpose: perimeter

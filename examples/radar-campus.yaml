@@ -1,0 +1,76 @@
+# e2ectl manifest v1
+# Radar-PTZ Autotracking for Campus Deployment
+#
+# This manifest pairs AXIS D2210-VE radars with Q6135-LE PTZ cameras
+# for automated tracking of people and vehicles.
+#
+# Usage:
+#   e2ectl plan -f radar-campus.yaml
+#   e2ectl apply -f radar-campus.yaml
+#   e2ectl verify -f radar-campus.yaml
+
+apiVersion: e2ectl/v1
+kind: SitePairing
+metadata:
+  name: campus-building-a
+  site: "Tech Campus — Building A"
+  project: "CAMPUS-2026-Q2"
+  integrator: "Your Company"
+  contact: "you@example.com"
+  created: "2026-03-19"
+  notes: |
+    Radar-PTZ autotracking for parking lot and loading dock.
+    Two D2210 radars paired with Q6135-LE PTZ cameras.
+    Mounting heights and pan offsets configured per-zone.
+
+defaults:
+  credentials:
+    username: root
+    password: ${E2ECTL_DEFAULT_PASS}
+  timeout: 15
+
+devices:
+  - name: parking-radar
+    ip: 10.2.1.10
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: dock-radar
+    ip: 10.2.1.11
+    type: radar
+    model: AXIS D2210-VE
+
+  - name: parking-ptz
+    ip: 10.2.1.20
+    type: camera
+    model: AXIS Q6135-LE
+
+  - name: dock-ptz
+    ip: 10.2.1.21
+    type: camera
+    model: AXIS Q6135-LE
+
+pairings:
+  - name: parking-autotrack
+    type: radar-ptz
+    primary: parking-radar
+    secondary: parking-ptz
+    config:
+      mountingHeight: 4.5
+      panOffset: 0
+      tracking: true
+    labels:
+      zone: parking
+      purpose: autotracking
+
+  - name: dock-autotrack
+    type: radar-ptz
+    primary: dock-radar
+    secondary: dock-ptz
+    config:
+      mountingHeight: 3.0
+      panOffset: -15
+      tracking: true
+    labels:
+      zone: loading-dock
+      purpose: autotracking
