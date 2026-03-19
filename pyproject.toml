@@ -1,0 +1,53 @@
+[project]
+name = "e2ectl"
+version = "0.1.0"
+description = "kubectl-style CLI for Axis Communications edge-to-edge device pairing"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "Matthew Visher" }]
+keywords = ["axis", "vapix", "edge-to-edge", "physical-security", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "Topic :: System :: Networking",
+    "Typing :: Typed",
+]
+dependencies = [
+    "click>=8.1",
+    "aiohttp>=3.9",
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "rich>=13.0",
+]
+
+[project.scripts]
+e2ectl = "e2ectl.cli:cli"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "aioresponses>=0.7",
+    "mypy>=1.8",
+    "ruff>=0.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "TCH"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

@@ -1,0 +1,80 @@
+apiVersion: e2ectl/v1
+kind: SitePairing
+metadata:
+  name: walgreens-store-4421
+  site: "Walgreens #4421 - Salt Lake City, UT"
+  project: "WAG-2026-Q2-042"
+  integrator: "SecureTech Partners"
+  contact: "matt@securetech.example.com"
+  created: "2026-03-18"
+  notes: |
+    Standard retail deterrence package.
+    3x camera+speaker pairs for entrance, pharmacy, parking.
+
+defaults:
+  credentials:
+    username: root
+    password: ${E2ECTL_DEFAULT_PASS}
+  timeout: 15
+
+devices:
+  - name: entrance-cam
+    ip: 10.1.1.10
+    type: camera
+    model: AXIS P3268-LVE
+
+  - name: pharmacy-cam
+    ip: 10.1.1.11
+    type: camera
+    model: AXIS P3265-LVE
+
+  - name: parking-cam
+    ip: 10.1.1.12
+    type: camera
+    model: AXIS Q1786-LE
+
+  - name: entrance-spk
+    ip: 10.1.1.50
+    type: speaker
+    model: AXIS C1410
+
+  - name: pharmacy-spk
+    ip: 10.1.1.51
+    type: speaker
+    model: AXIS C1310-E
+
+  - name: parking-spk
+    ip: 10.1.1.52
+    type: speaker
+    model: AXIS C1110-E
+
+pairings:
+  - name: entrance-deterrence
+    type: audio
+    subtype: speaker
+    primary: entrance-cam
+    secondary: entrance-spk
+    labels:
+      zone: entrance
+      purpose: deterrence
+      priority: high
+
+  - name: pharmacy-deterrence
+    type: audio
+    subtype: speaker
+    primary: pharmacy-cam
+    secondary: pharmacy-spk
+    labels:
+      zone: pharmacy
+      purpose: deterrence
+      priority: high
+
+  - name: parking-deterrence
+    type: audio
+    subtype: speaker
+    primary: parking-cam
+    secondary: parking-spk
+    labels:
+      zone: parking-lot
+      purpose: deterrence
+      priority: medium

@@ -1,0 +1,97 @@
+"""Rich terminal output for all e2ectl commands."""
+
+from __future__ import annotations
+
+import json
+from typing import TYPE_CHECKING, Any
+
+import yaml
+from rich.console import Console
+from rich.table import Table
+
+if TYPE_CHECKING:
+    from e2ectl.models.device import DeviceInfo
+    from e2ectl.pairing.engine import ApplyResult
+
+console = Console()
+
+
+def render_devices(devices: list[DeviceInfo], output_format: str = "table") -> None:
+    """Render discovered devices in the specified format."""
+    if output_format == "json":
+        data = [d.model_dump(mode="json") for d in devices]
+        console.print_json(json.dumps(data))
+        return
+
+    if output_format == "yaml":
+        data = [d.model_dump(mode="json") for d in devices]
+        console.print(yaml.dump(data, default_flow_style=False))
+        return
+
+    if output_format == "csv":
+        console.print("ip,model,type,serial,firmware,soc,e2e")
+        for d in devices:
+            console.print(
+                f"{d.address},{d.model},{d.device_type},{d.serial},"
+                f"{d.firmware},{d.soc},{d.e2e_supported}"
+            )
+        return
+
+    # Default: rich table
+    table = Table(title="Discovered Axis Devices", show_lines=True)
+    table.add_column("IP", style="cyan", no_wrap=True)
+    table.add_column("Model", style="bold")
+    table.add_column("Type", style="green")
+    table.add_column("Serial")
+    table.add_column("Firmware")
+    table.add_column("SoC")
+    table.add_column("E2E", justify="center")
+
+    for d in devices:
+        e2e = "[green]✓[/green]" if d.e2e_supported else "[dim]—[/dim]"
+        table.add_row(
+            d.address,
+            d.model,
+            d.device_type.value,
+            d.serial,
+            d.firmware,
+            d.soc,
+            e2e,
+        )
+
+    console.print(table)
+    console.print(f"\n[bold]{len(devices)}[/bold] device(s) found.")
+
+
+def render_apply_result(result: ApplyResult) -> None:
+    """Render pairing apply/teardown results."""
+    table = Table(title="Pairing Results", show_lines=True)
+    table.add_column("Name", style="bold")
+    table.add_column("Type")
+    table.add_column("Primary", style="cyan")
+    table.add_column("Secondary", style="cyan")
+    table.add_column("Status", justify="center")
+    table.add_column("Details")
+
+    for r in result.results:
+        status = f"[green]✓ {r.state.value}[/green]" if r.success else "[red]✗ failed[/red]"
+        details = r.error if r.error else ""
+        table.add_row(r.name, r.pairing_type, r.primary, r.secondary, status, details)
+
+    console.print(table)
+    console.print(
+        f"\n[bold]{result.succeeded}[/bold] succeeded, "
+        f"[bold]{result.failed}[/bold] failed out of "
+        f"[bold]{result.total}[/bold] total."
+    )
+
+
+def render_manifest_summary(manifest: Any) -> None:
+    """Render a summary of a loaded manifest."""
+    console.print(f"\n[bold]Site:[/bold] {manifest.metadata.site or manifest.metadata.name}")
+    if manifest.metadata.project:
+        console.print(f"[bold]Project:[/bold] {manifest.metadata.project}")
+    if manifest.metadata.integrator:
+        console.print(f"[bold]Integrator:[/bold] {manifest.metadata.integrator}")
+    console.print(f"[bold]Devices:[/bold] {len(manifest.devices)}")
+    console.print(f"[bold]Pairings:[/bold] {len(manifest.pairings)}")
