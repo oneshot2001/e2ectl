@@ -1,18 +1,22 @@
-"""Manifest YAML parser with Pydantic validation."""
+"""Manifest YAML parser with Pydantic validation.
+
+Uses axelib for YAML loading + env var interpolation, keeps e2ectl-specific
+Pydantic validation on top.
+"""
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-import yaml
+from axelib.manifest.loader import ManifestError, load_yaml  # noqa: F401
 from pydantic import ValidationError
 
-from e2ectl.manifest.interpolate import interpolate_env_vars
 from e2ectl.models.manifest import SitePairing
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-class ManifestError(Exception):
-    """Human-readable manifest parsing/validation error."""
+__all__ = ["ManifestError", "load_manifest"]
 
 
 def load_manifest(path: str | Path, strict_env: bool = True) -> SitePairing:
@@ -28,30 +32,7 @@ def load_manifest(path: str | Path, strict_env: bool = True) -> SitePairing:
     Raises:
         ManifestError: On file read, YAML parse, or validation failure.
     """
-    path = Path(path)
-
-    if not path.exists():
-        raise ManifestError(f"Manifest file not found: {path}")
-
-    try:
-        raw = path.read_text()
-    except OSError as e:
-        raise ManifestError(f"Cannot read manifest: {e}") from e
-
-    # Interpolate env vars before YAML parsing
-    try:
-        interpolated = interpolate_env_vars(raw, strict=strict_env)
-    except Exception as e:
-        raise ManifestError(f"Environment variable error: {e}") from e
-
-    # Parse YAML
-    try:
-        data = yaml.safe_load(interpolated)
-    except yaml.YAMLError as e:
-        raise ManifestError(f"Invalid YAML: {e}") from e
-
-    if not isinstance(data, dict):
-        raise ManifestError("Manifest must be a YAML mapping (not a list or scalar)")
+    data = load_yaml(path, strict_env=strict_env)
 
     # Validate with Pydantic
     try:

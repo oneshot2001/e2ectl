@@ -6,14 +6,12 @@ import json
 from typing import TYPE_CHECKING, Any
 
 import yaml
-from rich.console import Console
+from axelib.reporting.console import console
 from rich.table import Table
 
 if TYPE_CHECKING:
     from e2ectl.models.device import DeviceInfo
     from e2ectl.pairing.engine import ApplyResult
-
-console = Console()
 
 
 def render_devices(devices: list[DeviceInfo], output_format: str = "table") -> None:

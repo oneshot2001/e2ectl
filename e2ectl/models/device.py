@@ -1,34 +1,14 @@
-"""Device models — types and info returned from discovery."""
+"""Device models — e2ectl extension with edge-to-edge fields."""
 
-from enum import StrEnum
+from axelib.models.device import DeviceInfo as _BaseDeviceInfo
+from axelib.models.device import DeviceType  # noqa: F401
 
-from pydantic import BaseModel
-
-
-class DeviceType(StrEnum):
-    CAMERA = "camera"
-    SPEAKER = "speaker"
-    RADAR = "radar"
-    MICROPHONE = "mic"
-    INTERCOM = "intercom"
-    STROBE = "strobe"
-    UNKNOWN = "unknown"
+__all__ = ["DeviceInfo", "DeviceType"]
 
 
-class DeviceInfo(BaseModel):
-    """A discovered Axis device with its capabilities."""
+class DeviceInfo(_BaseDeviceInfo):
+    """A discovered Axis device with e2ectl pairing capabilities."""
 
-    ip: str
-    model: str
-    full_name: str
-    serial: str
-    firmware: str
-    soc: str
-    device_type: DeviceType = DeviceType.UNKNOWN
     e2e_supported: bool = False
     e2e_capabilities: list[str] = []
     active_pairings: list[dict[str, str]] = []
-
-    @property
-    def address(self) -> str:
-        return self.ip
